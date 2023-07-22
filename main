@@ -1,0 +1,129 @@
+import java.awt.BorderLayout;
+import java.util.Collections;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+public class Main {
+
+    public static void main(String[] args) {
+            SwingUtilities.invokeLater(() -> new Main().createAndShowUI());
+        }
+
+    private void createAndShowUI() {
+        final JFrame frame = new JFrame("Test");
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        initComponents(frame);
+
+        frame.setResizable(false);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    private void initComponents(JFrame frame) {
+        final JTextField byName = new JTextField(100);
+        final JTextField byDescription = new JTextField(40);
+        final JTextArea ta = new JTextArea(85,200);
+
+        ta.setEditable(false);
+
+        byName.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent de) {
+                System.out.println(byName.getText());
+                String[] allPhrases = gpText(byName.getText(), true);
+                if(allPhrases.length == 0){
+                    System.out.println("!");
+                }
+                ta.setText("");
+                for(int i = 0; i < allPhrases.length; i++){
+                    ta.append(allPhrases[i] + "\n");
+                    System.out.println(allPhrases[i]);
+                }
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent de) {
+                System.out.println(byName.getText());
+                String[] allPhrases = gpText(byName.getText(), true);
+                if(allPhrases.length == 0){
+                    System.out.println("!");
+                }
+                if(byName.getText() == ""){
+                    ta.setText("");
+                }
+                ta.setText("");
+                for(int i = 0; i < allPhrases.length; i++){
+                    ta.append(allPhrases[i] + "\n");
+                    System.out.println(allPhrases[i]);
+                }
+                if(byName.getText().equals("")){
+                    ta.setText("");
+                }
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent de) {
+                //Plain text components don't fire these events.
+            }
+        });
+
+        frame.add(byName);
+        byName.setLocation(0,0);
+        frame.add(ta);
+        ta.setLocation(0,100);
+    }
+
+
+    public static String[] gpText(String uI, boolean cS){
+        String[] namesList = getWords("names.txt");
+        return gpList(uI, namesList, cS);
+    }
+
+
+    private static String[] getWords(String filepath) {
+        ArrayList<String> phrases = new ArrayList();
+        try{
+            FileReader fileReader = new FileReader(filepath);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            String currentLine;
+
+            while((currentLine = bufferedReader.readLine()) != null){
+                phrases.add(currentLine);
+            }
+            bufferedReader.close();
+            fileReader.close();
+
+            Collections.sort(phrases);
+        }
+        catch(Exception e){
+            phrases.add(e.toString());
+        }
+        return phrases.toArray(new String[0]);
+    }
+
+
+    public static String[] gpList(String uI, String[] listAll, boolean cS) {
+        ArrayList<String> phrases = new ArrayList();
+        for (int i = 0; i < listAll.length; i++) {
+            if (cS) {
+                if (listAll[i].startsWith(uI)) {
+                    phrases.add(listAll[i]);
+                }
+            }
+            else {
+                    if (listAll[i].toUpperCase().startsWith(uI.toUpperCase())) {
+                        phrases.add(listAll[i]);
+                    }
+                }
+            }
+        return phrases.toArray(new String[0]);
+    }
+}
